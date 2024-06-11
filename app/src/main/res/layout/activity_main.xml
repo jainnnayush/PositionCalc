@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/roll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Roll: 0.0"
+            android:layout_marginTop="16dp"
+            android:layout_centerHorizontal="true"/>
+
+        <TextView
+            android:id="@+id/pitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pitch: 0.0"
+            android:layout_below="@id/roll"
+            android:layout_marginTop="16dp"
+            android:layout_centerHorizontal="true"/>
+
+        <TextView
+            android:id="@+id/yaw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Yaw: 0.0"
+            android:layout_below="@id/pitch"
+            android:layout_marginTop="16dp"
+            android:layout_centerHorizontal="true"/>
+
+        <TextView
+            android:id="@+id/linear_acceleration_x"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Linear Acceleration X: 0.0"
+            android:layout_below="@id/yaw"
+            android:layout_marginTop="16dp"
+            android:layout_centerHorizontal="true"/>
+
+        <TextView
+            android:id="@+id/linear_acceleration_y"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Linear Acceleration Y: 0.0"
+            android:layout_below="@id/linear_acceleration_x"
+            android:layout_marginTop="16dp"
+            android:layout_centerHorizontal="true"/>
+
+        <TextView
+            android:id="@+id/linear_acceleration_z"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Linear Acceleration Z: 0.0"
+            android:layout_below="@id/linear_acceleration_y"
+            android:layout_marginTop="16dp"
+            android:layout_centerHorizontal="true"/>
+
+        <TextView
+            android:id="@+id/position_x"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Position X: 0.0"
+            android:layout_below="@id/linear_acceleration_z"
+            android:layout_marginTop="16dp"
+            android:layout_centerHorizontal="true"/>
+
+        <TextView
+            android:id="@+id/position_y"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Position Y: 0.0"
+            android:layout_below="@id/position_x"
+            android:layout_marginTop="16dp"
+            android:layout_centerHorizontal="true"/>
+
+        <TextView
+            android:id="@+id/position_z"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Position Z: 0.0"
+            android:layout_below="@id/position_y"
+            android:layout_marginTop="16dp"
+            android:layout_centerHorizontal="true"/>
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/linear_accel_chart_x"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_below="@id/position_z"
+            android:layout_marginTop="16dp"/>
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/linear_accel_chart_y"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_below="@id/linear_accel_chart_x"
+            android:layout_marginTop="16dp"/>
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/linear_accel_chart_z"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_below="@id/linear_accel_chart_y"
+            android:layout_marginTop="16dp"/>
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/position_chart_x"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_below="@id/linear_accel_chart_z"
+            android:layout_marginTop="16dp"/>
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/position_chart_y"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_below="@id/position_chart_x"
+            android:layout_marginTop="16dp"/>
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/position_chart_z"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_below="@id/position_chart_y"
+            android:layout_marginTop="16dp"/>
+    </RelativeLayout>
+</ScrollView>
+
+    <!--    <TextView-->
+    <!--        android:id="@+id/accelerometer_x"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:text="Accelerometer X: 0.0"-->
+    <!--        android:layout_below="@id/position_z"-->
+    <!--        android:layout_marginTop="16dp"-->
+    <!--        android:layout_centerHorizontal="true"/>-->
+
+    <!--    <TextView-->
+    <!--        android:id="@+id/accelerometer_y"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:text="Accelerometer Y: 0.0"-->
+    <!--        android:layout_below="@id/accelerometer_x"-->
+    <!--        android:layout_marginTop="16dp"-->
+    <!--        android:layout_centerHorizontal="true"/>-->
+
+    <!--    <TextView-->
+    <!--        android:id="@+id/accelerometer_z"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:text="Accelerometer Z: 0.0"-->
+    <!--        android:layout_below="@id/accelerometer_y"-->
+    <!--        android:layout_marginTop="16dp"-->
+    <!--        android:layout_centerHorizontal="true"/>-->
