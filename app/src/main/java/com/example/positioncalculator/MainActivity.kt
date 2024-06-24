@@ -196,6 +196,7 @@ import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -222,6 +223,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var linearAccelChartX: LineChart
     private lateinit var linearAccelChartY: LineChart
     private lateinit var linearAccelChartZ: LineChart
+
     private lateinit var positionChartX: LineChart
     private lateinit var positionChartY: LineChart
     private lateinit var positionChartZ: LineChart
@@ -275,6 +277,7 @@ class MainActivity : AppCompatActivity() {
                 yawView.text = "Yaw: $yaw"
 
                 accelerometerData?.let { acc ->
+                    // change the acceleration here according to csv file
                     val correctedAcc=sensorCalibration.calculateCorrectedAcceleration(acc)
                     val rollRad = Math.toRadians(roll.toDouble())
                     val pitchRad = Math.toRadians(pitch.toDouble())
@@ -285,9 +288,9 @@ class MainActivity : AppCompatActivity() {
                     linearAccelerationYView.text = "Linear Acceleration Y: ${linearAcc[1]}"
                     linearAccelerationZView.text = "Linear Acceleration Z: ${linearAcc[2]}"
                     val pos = updatePosition(linearAcc, System.nanoTime())
-                    positionXView.text = "Position X: ${pos[0]}"
-                    positionYView.text = "Position Y: ${pos[1]}"
-                    positionZView.text = "Position Z: ${pos[2]}"
+                    positionXView.text = "Position X: ${acc[0]}"
+                    positionYView.text = "Position Y: ${acc[1]}"
+                    positionZView.text = "Position Z: ${acc[2]}"
 
                     sumLinearAccX += linearAcc[0]
                     sumLinearAccY += linearAcc[1]
@@ -379,31 +382,34 @@ class MainActivity : AppCompatActivity() {
         chart.data = null
         chart.invalidate()
     }
+// Method 1 - Linear Acceleration = a-R*g
+//    private fun extractLinearAcceleration(accelReadings: FloatArray, roll: Double, pitch: Double, yaw: Double): FloatArray {
+//        val g = 9.81f
+//        val g_inertial = floatArrayOf(0.0f, 0.0f, g)
+//        val R = rotationMatrix(roll, pitch, yaw)
+//        val g_body = FloatArray(3)
+//        for (i in 0..2) {
+//            g_body[i] = 0.0f
+//            for (j in 0..2) {
+//                g_body[i] += R[i][j].toFloat() * g_inertial[j]
+//            }
+//        }
+//        val a_linear = FloatArray(3)
+//        for (i in 0..2) {
+//            a_linear[i] = (accelReadings[i] - g_body[i])
+//        }
+//        filteredAccelValues[0]=lowPassFilter(a_linear[0],filteredAccelValues[0])
+//        filteredAccelValues[1]=lowPassFilter(a_linear[1],filteredAccelValues[1])
+//        filteredAccelValues[2]=lowPassFilter(a_linear[2],filteredAccelValues[2])
+//        return filteredAccelValues
+//    }
 
-    private fun extractLinearAcceleration(accelReadings: FloatArray, roll: Double, pitch: Double, yaw: Double): FloatArray {
-        val g = 9.81f
-        val g_inertial = floatArrayOf(0.0f, 0.0f, g)
-        val R = rotationMatrix(roll, pitch, yaw)
-        val g_body = FloatArray(3)
-        for (i in 0..2) {
-            g_body[i] = 0.0f
-            for (j in 0..2) {
-                g_body[i] += R[i][j].toFloat() * g_inertial[j]
-            }
-        }
-        val a_linear = FloatArray(3)
-        for (i in 0..2) {
-            a_linear[i] = (accelReadings[i] - g_body[i])
-        }
-        filteredAccelValues[0]=lowPassFilter(a_linear[0],filteredAccelValues[0])
-        filteredAccelValues[1]=lowPassFilter(a_linear[1],filteredAccelValues[1])
-        filteredAccelValues[2]=lowPassFilter(a_linear[2],filteredAccelValues[2])
-        return filteredAccelValues
-    }
+
+// Method 2 Linear acceleration = R*a-g
     private fun extractLinearAcceleration2(accelReadings: FloatArray, roll: Double, pitch: Double, yaw: Double): FloatArray {
-        val g = 9.81f
+        val g = -9.81f
         val g_inertial = floatArrayOf(0.0f, 0.0f, g)
-        val R = rotationMatrix(roll, pitch, yaw)
+        val R = rotationsMatrix(roll, pitch, yaw)
         val g_body = FloatArray(3)
         for (i in 0..2) {
             g_body[i] = 0.0f
@@ -413,43 +419,45 @@ class MainActivity : AppCompatActivity() {
         }
         val a_linear = FloatArray(3)
         for (i in 0..2) {
-            a_linear[i] = (g_body[i] - g_inertial[i])
+            a_linear[i] = (g_body[i]) + (g_inertial[i])
         }
         filteredAccelValues[0]=lowPassFilter(a_linear[0],filteredAccelValues[0])
         filteredAccelValues[1]=lowPassFilter(a_linear[1],filteredAccelValues[1])
         filteredAccelValues[2]=lowPassFilter(a_linear[2],filteredAccelValues[2])
         return filteredAccelValues
     }
-    private fun extractLinearAcceleration3(accelReadings: FloatArray, roll: Double, pitch: Double, yaw: Double): FloatArray {
-        val g = 9.81f
-        val g_inertial = floatArrayOf(0.0f, 0.0f, g)
-        val R = rotationsMatrix(roll, pitch, yaw)
-        val g_body = FloatArray(3)
-        for (i in 0..2) {
-            g_body[i] = (accelReadings[i] - g_inertial[i])
-        }
-        val a_linear = FloatArray(3)
-        for (i in 0..2) {
-            a_linear[i]=0f
-            for (j in 0..2) {
-                a_linear[i] += R[i][j].toFloat() * g_body[j]
-            }
-        }
-        filteredAccelValues[0]=lowPassFilter(a_linear[0],filteredAccelValues[0])
-        filteredAccelValues[1]=lowPassFilter(a_linear[1],filteredAccelValues[1])
-        filteredAccelValues[2]=lowPassFilter(a_linear[2],filteredAccelValues[2])
-        return filteredAccelValues
-    }
+
+// Using different rotation matrix
+//    private fun extractLinearAcceleration3(accelReadings: FloatArray, roll: Double, pitch: Double, yaw: Double): FloatArray {
+//        val g = 9.81f
+//        val g_inertial = floatArrayOf(0.0f, 0.0f, g)
+//        val R = rotationsMatrix(roll, pitch, yaw)
+//        val g_body = FloatArray(3)
+//        for (i in 0..2) {
+//            g_body[i] = (accelReadings[i] - g_inertial[i])
+//        }
+//        val a_linear = FloatArray(3)
+//        for (i in 0..2) {
+//            a_linear[i]=0f
+//            for (j in 0..2) {
+//                a_linear[i] += R[i][j].toFloat() * g_body[j]
+//            }
+//        }
+//        filteredAccelValues[0]=lowPassFilter(a_linear[0],filteredAccelValues[0])
+//        filteredAccelValues[1]=lowPassFilter(a_linear[1],filteredAccelValues[1])
+//        filteredAccelValues[2]=lowPassFilter(a_linear[2],filteredAccelValues[2])
+//        return filteredAccelValues
+//    }
     private fun rotationMatrix(roll: Double, pitch: Double, yaw: Double): Array<DoubleArray> {
         val R_x = arrayOf(
             doubleArrayOf(1.0, 0.0, 0.0),
-            doubleArrayOf(0.0, cos(roll), sin(roll)),
-            doubleArrayOf(0.0, -sin(roll), cos(roll))
+            doubleArrayOf(0.0, cos(roll), -sin(roll)),
+            doubleArrayOf(0.0, sin(roll), cos(roll))
         )
         val R_y = arrayOf(
-            doubleArrayOf(cos(pitch), 0.0, -sin(pitch)),
+            doubleArrayOf(cos(pitch), 0.0, sin(pitch)),
             doubleArrayOf(0.0, 1.0, 0.0),
-            doubleArrayOf(sin(pitch), 0.0, cos(pitch))
+            doubleArrayOf(-sin(pitch), 0.0, cos(pitch))
         )
         val R_z = arrayOf(
             doubleArrayOf(cos(yaw), sin(yaw), 0.0),
@@ -477,39 +485,10 @@ class MainActivity : AppCompatActivity() {
         return R
     }
     private fun rotationsMatrix(roll: Double, pitch: Double, yaw: Double): Array<DoubleArray> {
-        val R_x = arrayOf(
-            doubleArrayOf(1.0, 0.0, 0.0),
-            doubleArrayOf(0.0, cos(roll), sin(roll)),
-            doubleArrayOf(0.0, -sin(roll), cos(roll))
-        )
-        val R_y = arrayOf(
-            doubleArrayOf(cos(pitch), 0.0, -sin(pitch)),
-            doubleArrayOf(0.0, 1.0, 0.0),
-            doubleArrayOf(sin(pitch), 0.0, cos(pitch))
-        )
-        val R_z = arrayOf(
-            doubleArrayOf(cos(yaw), sin(yaw), 0.0),
-            doubleArrayOf(-sin(yaw), cos(yaw), 0.0),
-            doubleArrayOf(0.0, 0.0, 1.0)
-        )
-        val R_yx = Array(3) { DoubleArray(3) }
-        for (i in 0..2) {
-            for (j in 0..2) {
-                R_yx[i][j] = 0.0
-                for (k in 0..2) {
-                    R_yx[i][j] += R_y[i][k] * R_x[k][j]
-                }
-            }
-        }
-        val R = Array(3) { DoubleArray(3) }
-        for (i in 0..2) {
-            for (j in 0..2) {
-                R[i][j] = 0.0
-                for (k in 0..2) {
-                    R[i][j] += R_z[i][k] * R_yx[k][j]
-                }
-            }
-        }
+        val R = arrayOf(doubleArrayOf(cos(pitch)*cos(yaw),-cos(roll)*sin(yaw)+sin(roll)*sin(pitch)*cos(yaw),sin(roll)*sin(yaw)+cos(roll)*sin(pitch)*cos(yaw)),
+            doubleArrayOf(cos(pitch)*sin(yaw),cos(roll)*cos(yaw)+sin(roll)*sin(pitch)*sin(yaw),sin(roll)*cos(pitch)),
+            doubleArrayOf(-sin(pitch),sin(roll)*cos(pitch),cos(roll)*cos(pitch))
+            )
         return R
     }
     private fun updatePosition(linearAcceleration: FloatArray, currentTime: Long): FloatArray {
